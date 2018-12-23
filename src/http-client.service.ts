@@ -1,7 +1,8 @@
-import { Observable } from 'rxjs/Rx';
+import { Observable, of, from, throwError } from 'rxjs';
 import { Inject, Injectable } from '@angular/core';
 import { NgHttpConfig, BeforeHookFunction, AfterHookFunction } from './http-client.config';
 import { Http, Headers, RequestOptions, RequestOptionsArgs, Response, Request, RequestMethod } from '@angular/http';
+import { map, flatMap, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class HttpClient {
@@ -59,12 +60,14 @@ export class HttpClient {
       }
 
       return this.beforeRequest(req)
-        .flatMap((req: Request) => this.http.request(req))
-        .map((res: Response) => this.afterCall(res))
-        .catch(error => {
-          this.errorHandler(error);
-          return Observable.throw(error.json())
-        });
+        .pipe(
+          flatMap((req: Request) => this.http.request(req)),
+          map((res: Response) => this.afterCall(res)),
+          catchError(error => {
+            this.errorHandler(error);
+            return throwError(error.json())
+          })
+        );
     }
 
     private build(method: RequestMethod, url: string, options: RequestOptionsArgs, body?: string): RequestOptionsArgs {
@@ -93,7 +96,7 @@ export class HttpClient {
       }
 
       if(this.beforeHooks.length) {
-        return Observable.fromPromise<Request>(
+        return from<Request>(
           this.beforeHooks.reduce<any>((previousValue, currentValue) => {
           return previousValue
             .then((res: Request) => {
@@ -101,7 +104,7 @@ export class HttpClient {
             });
         }, Promise.resolve(req)));
       } else {
-        return Observable.of(req);
+        return of(req);
       }
     }
 
