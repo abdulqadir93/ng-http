@@ -15,11 +15,11 @@ export declare class HttpClient {
     post(url: string, body: string, options?: RequestOptionsArgs): Observable<Response>;
     delete(url: string, options?: RequestOptionsArgs): Observable<Response>;
     patch(url: string, body: string, options?: RequestOptionsArgs): Observable<Response>;
-    private request(url, options?);
-    private build(method, url, options, body?);
+    private request;
+    private build;
     addBeforeHook(func: BeforeHookFunction): void;
     addAfterHook(func: AfterHookFunction): void;
-    private beforeRequest(req);
-    private afterCall(res);
-    private errorHandler(res);
+    private beforeRequest;
+    private afterCall;
+    private errorHandler;
 }
